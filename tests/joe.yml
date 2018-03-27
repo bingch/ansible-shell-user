@@ -1,0 +1,13 @@
+---
+username: joe
+comment: "Joe John"
+uid: 1234
+group: users
+usergroups: ['wheel']
+workstations:
+  - ip: '1.2.3.4'
+    host: 'joe-john-workstation'
+password: "!!"
+sudo_user: false
+ssh_key_files: []
+

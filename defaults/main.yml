@@ -1,0 +1,13 @@
+---
+create_user_group: true
+user_group: users
+usergroups: false
+default_shell: /bin/bash
+user_create_homedirs: true
+groups_to_create: []
+sudo_user: false
+sudo_user_nopasswd: false
+sudo_user_custom: false
+user_groups: []
+workstations: false
+uid: false 

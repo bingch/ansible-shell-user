@@ -1,0 +1,16 @@
+---
+- name: Add local shell user
+  remote_user: root
+  hosts: 127.0.0.1
+
+  tasks:
+    # real user
+    - name: shell user for all servers
+      include_role:
+        name: shell-user
+      vars:
+        user_meta: "{{shelluserloop}}"
+      with_items:
+        - 'joe.yml'
+      loop_control:
+        loop_var: shelluserloop
