@@ -3,8 +3,8 @@
 ###########################################################################
 # user adding
 ###########################################################################
-users_list: {}                # users dict to be created
 
+users_list: []                # users yml path list to be created
 default_shell: /sbin/nologin  # should really be bash, but I'm panaroid
 default_user_group: users
 default_pass: "!*!"           # can also load from file, see below
@@ -19,11 +19,10 @@ set_uid: false
 # user deletion
 ###########################################################################
 
-users_delete_list: []         # users list to be removed
+users_delete_list: []         # user yml path list to be removed
 
 default_home_remove: false    # by default we don't remove user's home, but 
 default_home_mode: '0000'     # change remain user's home to other owner
 default_home_owner: 'root'    # and set different mode
 default_home_group: 'root'
 default_remove_force: false       # if set to true, force remove user  
-users_delete_path: 'user-delete/' # default remove user yml folder

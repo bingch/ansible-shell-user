@@ -10,7 +10,6 @@
     tmp_default_home_owner: "{{ default_home_owner }}"
     tmp_default_home_group: "{{ default_home_group }}"
     tmp_default_home_mode: "{{ default_home_mode }}"
-    tmp_path: "{{ users_delete_path }}"
     tmp_users_list: "{{ users_delete_list }}"
 
 - name: load user's yml

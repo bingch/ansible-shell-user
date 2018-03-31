@@ -10,27 +10,26 @@ Depends on tcpwrapper role to handle user's hosts.allow config
 
 Role Variables
 --------------
- 
- users_list: []                # users yml path list to be created
- 
- default_shell: /sbin/nologin  # should really be bash, but I'm panaroid
- default_user_group: users
- default_pass: "!*!"           # can also load from file, see below
- default_user_groups: ['users']
- 
- override_existing_user: false # don't touch existing user by default
- set_tcpwrapper: false         # set to true if need hosts.allow to restrict ssh
- set_uid: false
- 
- users_delete_list: []         # users yml path list to be removed
- 
- default_home_remove: false    # by default we don't remove user's home, but 
- default_home_mode: '0000'     # change remain user's home to other owner
- default_home_owner: 'root'    # and set different mode
- default_home_group: 'root'
- default_remove_force: false      # if set to true, force remove user  
- users_delete_path: 'user-delete/'# default remove user yml folder
- 
+<pre> 
+users_list: []                # users yml path list to be created
+
+default_shell: /sbin/nologin  # should really be bash, but I'm panaroid
+default_user_group: users
+default_pass: "!*!"           # can also load from file, see below
+default_user_groups: ['users']
+
+override_existing_user: false # don't touch existing user by default
+set_tcpwrapper: false         # set to true if need hosts.allow to restrict ssh
+set_uid: false
+
+users_delete_list: []         # users yml path list to be removed
+
+default_home_remove: false    # by default we don't remove user's home, but 
+default_home_mode: '0000'     # change remain user's home to other owner
+default_home_owner: 'root'    # and set different mode
+default_home_group: 'root'
+default_remove_force: false      # if set to true, force remove user  
+</pre>
 Dependencies
 ------------
 
