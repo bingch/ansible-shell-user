@@ -1,0 +1,14 @@
+- name: Test user connection for joe
+  hosts: 192.168.122.2
+  remote_user: joe
+  gather_facts: false
+  become: yes
+
+  vars:
+    ansible_ssh_private_key_file: ./bart
+
+  tasks:
+    - name: check joe-john-workstation in /etc/hosts
+      command: grep -w joe-john-workstation /etc/hosts
+    - name: check joe-john-workstation in /etc/hosts.allow
+      command: grep -w joe-john-workstation /etc/hosts.allow

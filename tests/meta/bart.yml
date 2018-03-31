@@ -1,0 +1,8 @@
+---
+username: bart
+comment: "bart John"
+uid: 2345
+password: "!!"
+shell: /bin/bash
+ssh_key_files:
+  - 'keys/bart.pub'

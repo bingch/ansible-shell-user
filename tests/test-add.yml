@@ -1,0 +1,87 @@
+---
+- name: Add local shell user
+  remote_user: root
+  hosts: 192.168.122.2
+
+  tasks:
+    - name: bare call
+      include_role:
+        name: shell-user
+
+    - name: shell user for all servers
+      include_role:
+        name: shell-user
+      vars:
+        set_uid: true
+        set_tcpwrapper: true          # set hosts.allow
+        users_list:
+          - user_yml_path: 'meta/'
+            users:
+              - bart
+              - mary
+              - '12345'
+          - user_yml_path: 'sudo/'
+            users:
+              - joe
+
+    - name: test bart
+      getent:
+        database: passwd
+        key: bart
+    
+    - name: test set uid
+      fail:
+        msg: 'set uid failed'
+      when: not getent_passwd.bart[1] | match('2345')
+
+    - name: test mary shadow
+      getent:
+        database: shadow
+        key: mary
+
+    - name: test set default password
+      fail:
+        msg: 'set default password failed!'
+      when: not getent_shadow.mary[0] | match('!*!')
+
+    - name: test 12345 shadow
+      getent:
+        database: shadow
+        key: '12345'
+
+    - name: test number user creation
+      fail:
+        msg: 'set default password failed!'
+      when: not getent_shadow | length == 1
+ 
+    - name: test shadow joe
+      getent:
+        database: shadow
+        key: joe
+
+    - name: test set password from file
+      fail:
+        msg: 'password loading from file failed!'
+      when: not getent_shadow.joe[0] | match('use_ansible_vault_encrypt_hash')
+
+    - name: shell user for all servers
+      include_role:
+        name: shell-user
+      vars:
+        set_uid: false
+        set_tcpwrapper: false
+        override_existing_user: true # force recreate user
+        users_list:
+          - user_yml_path: 'sudo/'
+            users:
+              - joe     # expecting the joe.yml in sudo subfolder
+
+    - name: get sudo file stat
+      stat:
+        path: /etc/sudoers.d/10_joe
+      register: p
+ 
+    - name: check if sudo file exists
+      fail:
+        msg: "/etc/sudoers.d/10_joe not exist!"
+      when: not p.stat.exists

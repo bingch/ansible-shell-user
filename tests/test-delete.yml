@@ -1,0 +1,75 @@
+---
+- name: Add local shell user
+  remote_user: root
+  hosts: 192.168.122.2
+
+  tasks:
+    - name: delete bart
+      include_role:
+        name: shell-user
+      vars:
+        default_home_remove: false
+        default_remove_force: false
+        users_delete_path: 'users_delete/'  # load delete users conf from user yml file
+        users_delete_list: 
+          - '12345'
+          - bart
+
+    - name: cleanup
+      include_role:     
+        name: shell-user
+      vars:
+        default_home_remove: true
+        default_remove_force: true
+        users_delete_path: 'users_delete/'  # load delete users conf from user yml file
+        users_delete_list:
+          - joe
+          - mary
+
+    - name: get current user
+      getent:
+        database: shadow
+
+    - name: check if bart is delete
+      fail:
+        msg: "bart is not delete!"
+      when: getent_shadow.bart is defined
+
+    - name: get bart's home stat
+      stat:
+        path: "/home/bart"
+      register: bart
+
+    - name: bart's home should owned by root
+      fail:
+      when: bart.stat.uid != 0
+
+    - name: get joe's home stat
+      stat:
+        path: "/home/joe"
+      register: joe
+
+    - name: joe's home should be delete
+      fail:
+      when: joe.stat.exists
+
+    - name: get joe's sudo file stat
+      stat:
+        path: "/etc/sudoers.d/10_joe"
+      register: joe
+
+    - name: joe's sudo file should be delete
+      fail:
+      when: joe.stat.exists
+
+    - name: check joe's hosts entry deletion
+      raw: if grep -q -w joe-john-workstation /etc/hosts ; then exit 1 ; fi
+
+    - name: check joe's hosts.allow entry deletion
+      raw: if grep -q -w joe-john-workstation /etc/hosts.allow ; then exit 1 ; fi
+
+    - name: clean up bart's home
+      file:
+        path: "/home/bart"
+        state: absent
+
