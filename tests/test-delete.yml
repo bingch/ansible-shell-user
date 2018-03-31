@@ -4,27 +4,25 @@
   hosts: 192.168.122.2
 
   tasks:
-    - name: delete bart
+    - name: delete user but keep their content
       include_role:
         name: shell-user
       vars:
         default_home_remove: false
         default_remove_force: false
-        users_delete_path: 'users_delete/'  # load delete users conf from user yml file
         users_delete_list: 
-          - '12345'
-          - bart
+          - 'users_delete/12345.yml'
+          - 'users_delete/bart.yml'
 
-    - name: cleanup
+    - name: delete user with cleanup
       include_role:     
         name: shell-user
       vars:
         default_home_remove: true
         default_remove_force: true
-        users_delete_path: 'users_delete/'  # load delete users conf from user yml file
         users_delete_list:
-          - joe
-          - mary
+          - 'users_delete/joe.yml'
+          - 'users_delete/mary.yml'
 
     - name: get current user
       getent:

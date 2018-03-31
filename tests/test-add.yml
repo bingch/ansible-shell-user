@@ -15,14 +15,10 @@
         set_uid: true
         set_tcpwrapper: true          # set hosts.allow
         users_list:
-          - user_yml_path: 'meta/'
-            users:
-              - bart
-              - mary
-              - '12345'
-          - user_yml_path: 'sudo/'
-            users:
-              - joe
+          - 'meta/bart.yml'
+          - 'meta/mary.yml'
+          - 'meta/12345.yml'
+          - 'meta/sudo/joe.yml'
 
     - name: test bart
       getent:
@@ -72,9 +68,8 @@
         set_tcpwrapper: false
         override_existing_user: true # force recreate user
         users_list:
-          - user_yml_path: 'sudo/'
-            users:
-              - joe     # expecting the joe.yml in sudo subfolder
+          - 'meta/sudo/joe.yml'
+          - 'meta/12345.yml'
 
     - name: get sudo file stat
       stat:

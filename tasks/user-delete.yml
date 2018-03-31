@@ -15,7 +15,7 @@
 
 - name: load user's yml
   include_vars:
-    file: "{{ tmp_path + item + '.yml' }}"
+    file: "{{ item }}"
     name: tmpuser
   with_items: "{{ tmp_users_list }}"
   register: tmp_users

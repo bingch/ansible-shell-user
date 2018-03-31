@@ -11,7 +11,7 @@ Depends on tcpwrapper role to handle user's hosts.allow config
 Role Variables
 --------------
  
- users_list: {}                # users dict to be created
+ users_list: []                # users yml path list to be created
  
  default_shell: /sbin/nologin  # should really be bash, but I'm panaroid
  default_user_group: users
@@ -22,7 +22,7 @@ Role Variables
  set_tcpwrapper: false         # set to true if need hosts.allow to restrict ssh
  set_uid: false
  
- users_delete_list: []         # users list to be removed
+ users_delete_list: []         # users yml path list to be removed
  
  default_home_remove: false    # by default we don't remove user's home, but 
  default_home_mode: '0000'     # change remain user's home to other owner
@@ -102,24 +102,19 @@ ssh_key_files:
 test-add.yml
 <pre>
 ---
-- name: Add local shell user
-  remote_user: root
-  hosts: 192.168.122.2
-    - name: shell user for all servers
-      include_role:
-        name: shell-user
-      vars:
-        set_uid: true
-        set_tcpwrapper: true          # set hosts.allow
-        users_list:
-          - user_yml_path: 'meta/'
-            users:
-              - bart
-              - mary
-              - '12345'
-          - user_yml_path: 'sudo/'
-            users:
-              - joe
+
+- name: shell user for all servers
+  include_role:
+    name: shell-user
+  vars:
+    set_uid: true
+    set_tcpwrapper: true          # set hosts.allow
+    users_list:
+      - 'meta/bart.yml'
+      - 'meta/mary.yml'
+      - 'meta/12345.yml'
+      - 'meta/sudo/joe.yml'
+
 </pre>
 test-delete.yml
 
@@ -130,16 +125,25 @@ test-delete.yml
   hosts: 192.168.122.2
 
   tasks:
-    - name: delete bart
+    - name: delete user but keep their content
       include_role:
         name: shell-user
       vars:
         default_home_remove: false
-        default_remove_force: true
-        users_delete_path: 'users_delete/'  # load delete users conf from user yml file
+        default_remove_force: false
         users_delete_list:
-          - '12345'
-          - bart
+          - 'users_delete/12345.yml'
+          - 'users_delete/bart.yml'
+
+    - name: delete user with cleanup
+      include_role:
+        name: shell-user
+      vars:
+        default_home_remove: true
+        default_remove_force: true
+        users_delete_list:
+          - 'users_delete/joe.yml'
+          - 'users_delete/mary.yml'
 </pre>
 
 License
