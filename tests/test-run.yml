@@ -1,0 +1,27 @@
+---
+- name: Add local shell user
+  remote_user: root
+  hosts: 192.168.122.2
+
+  tasks:
+    - name: bare call
+      include_role:
+        name: shell-user
+
+    - name: shell user for all servers
+      include_role:
+        name: shell-user
+      vars:
+        set_uid: true
+        set_tcpwrapper: true          # set hosts.allow
+        users_list:
+          - 'meta/bart.yml'
+          - 'meta/mary.yml'
+          - 'meta/12345.yml'
+          - 'meta/sudo/joe.yml'
+
+        default_home_remove: false
+        default_remove_force: false
+        users_delete_list:
+          - 'users_delete/12345.yml'
+          - 'users_delete/bart.yml'

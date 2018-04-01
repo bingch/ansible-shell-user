@@ -26,13 +26,11 @@
         new_users_list: "{{ new_users_list }} + [ '{{ item }}' ]" 
       when: item | basename | replace('.yml', '') not in exist_users
       with_items: "{{ tmp_users_list }}"
-    - debug: var=new_users_list
     - name: set back tmp_users_list
       set_fact: 
         tmp_users_list: "{{ new_users_list }}"
   when: not tmp_override
 
-- debug: var=tmp_users_list
 - name: load user's yml
   include_vars:
     file: "{{ item }}"
@@ -97,7 +95,7 @@
     group: "{{ item.item.group | default(item.item.username if not 
      item.item.username | regex_search('^[1-9]') else default_user_group) }}"
     mode: '0700'
-  when: item.stat.uid == 0
+  when: item.stat.uid is defined and item.stat.uid == 0
   with_items: "{{ tmp_homes.results }}"
 
 - name: SSH keys from files
