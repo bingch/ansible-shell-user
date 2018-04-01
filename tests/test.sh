@@ -6,9 +6,20 @@ rm bart
 ssh-keygen -f bart -N "" && mv bart.pub ./keys && cp ./keys/bart.pub ./keys/joe.pub 
 
 echo "test run..."
-time ansible-playbook -i inventory test-run.yml -C
+ansible-playbook -i inventory test-run.yml -C
+if [ $? -ne 0 ]
+then
+  echo "test run failed"
+  exit 1
+fi
+
 echo "real run..."
-time ansible-playbook -i inventory test.yml
+ansible-playbook -i inventory test.yml
+if [ $? -ne 0 ]
+then
+  echo "real run failed"
+  exit 1
+fi
 
 echo "remove bart's keys..."
 rm -f bart bart.pub
