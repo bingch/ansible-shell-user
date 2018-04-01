@@ -71,3 +71,7 @@
         path: "/home/bart"
         state: absent
 
+    - name: clean up joe's group
+      group:
+        name: joetest
+        state: absent

@@ -2,6 +2,8 @@
 username: joe
 comment: "Joe John sudo user"
 uid: 1234
+group: joetest
+gid: 1234
 usergroups: ['wheel']
 shell: /bin/bash
 workstations:

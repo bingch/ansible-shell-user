@@ -54,16 +54,15 @@
 
 - name: user group creation
   group: 
-    name: "{{ item.group | default(item.username) }}"
+    name: "{{ item.group }}"
     gid:  "{{ item.gid | default(omit) }}"
-  when: not item.username | regex_search('^[1-9]')
+  when: item.group is defined and not item.username | regex_search('^[1-9]')
   with_items: "{{ tmp_all_users }}"
 
 - name: User creation
   user:
     name: "{{ item.username }}"
-    group: "{{ item.group | default(item.username if not 
-           item.username | regex_search('^[1-9]') else default_user_group ) }}"
+    group: "{{ item.group | default(omit) }}"
     # empty string removes user from all secondary groups
     groups: "{{ item.usergroups | join(',') if item.usergroups is defined
                  else '' }}"

@@ -12,3 +12,5 @@
       command: grep -w joe-john-workstation /etc/hosts
     - name: check joe-john-workstation in /etc/hosts.allow
       command: grep -w joe-john-workstation /etc/hosts.allow
+    - name: check joetest group
+      raw: grep -w joetest /etc/group | grep -w 1234
