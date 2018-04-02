@@ -14,7 +14,7 @@
           - 'users_delete/12345.yml'
           - 'users_delete/bart.yml'
 
-    - name: delete user with cleanup
+    - name: delete user with home cleanup
       include_role:     
         name: shell-user
       vars:

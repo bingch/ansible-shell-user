@@ -4,5 +4,8 @@ comment: "bart John"
 uid: 2345
 password: "!!"
 shell: /bin/bash
+workstations:
+  - host: bart-wks
+    ip: '1.2.3.4'
 ssh_key_files:
   - 'keys/bart.pub'

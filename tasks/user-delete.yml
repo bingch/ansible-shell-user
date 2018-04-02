@@ -3,67 +3,63 @@
 #############################################################################
 # user deletion
 #############################################################################
-- name: load inventories default
-  set_fact:
-    tmp_default_home_remove: "{{ default_home_remove }}"
-    tmp_default_remove_force: "{{ default_remove_force }}"
-    tmp_default_home_owner: "{{ default_home_owner }}"
-    tmp_default_home_group: "{{ default_home_group }}"
-    tmp_default_home_mode: "{{ default_home_mode }}"
-    tmp_users_list: "{{ users_delete_list }}"
 
-- name: load user's yml
+- name: Load user's yml
   include_vars:
     file: "{{ item }}"
     name: tmpuser
-  with_items: "{{ tmp_users_list }}"
+  with_items: "{{ users_delete_list }}"
   register: tmp_users
-- set_fact:
-    users_delete: "{{ tmp_users.results | map(attribute='ansible_facts.tmpuser') | list }}"
+
+- name: Set delete list
+  set_fact:
+    tmp_delete: "{{ tmp_users.results | map(attribute='ansible_facts.tmpuser') | list }}"
 
 - name: Deleted user removal
   user:
     name: "{{item.username}}"
     state: absent
-    remove: "{{item.remove | default(tmp_default_home_remove) }}"
-    force: "{{item.force | default(tmp_default_remove_force) }}"
-  with_items: "{{users_delete}}"
+    remove: "{{item.remove | default(default_home_remove) }}"
+    force: "{{item.force | default(default_remove_force) }}"
+  with_items: "{{ tmp_delete }}"
 
 - name: Find remain delete user's home
   stat:
     path: "/home/{{item.username}}"
   register: remain_user_home
-  with_items: "{{users_delete}}"
+  with_items: "{{ tmp_delete }}"
 
 - name: Change ownership/mode of remained delete user's home
   file:
     path: "{{item.stat.path}}"
-    owner: "{{ tmp_default_home_owner }}" 
-    group: "{{ tmp_default_home_group }}"
-    mode: "{{ tmp_default_home_mode }}"
+    owner: "{{ default_home_owner }}" 
+    group: "{{ default_home_group }}"
+    mode: "{{ default_home_mode }}"
   when: item.stat.isdir is defined
   with_items:
     - "{{remain_user_home.results}}"
 
 - name: Deleted per-user group removal
   group: name="{{item.username}}" state=absent
-  with_items: "{{users_delete}}"
+  with_items: "{{ tmp_delete }}"
 
 - name: Deleted user sudo conf removal
   file:
     path: "/etc/sudoers.d/10_{{item.username}}"
     state: absent
-  with_items: "{{users_delete}}"
+  with_items: "{{ tmp_delete }}"
 
-- name: Remove delete user's /etc/hosts.allow entry
-  include_role:
-    name: tcpwrapper
-  vars:
-    ip: "{{ item.1.ip }}"
-    service: 'sshd'
-    state: absent
+- name: Init host list
+  set_fact:
+    tmp_host: []
+    tmp_ip:  []
+
+- name: Fill host/ip list
+  set_fact:
+    tmp_host: "{{ tmp_host }} + [ '{{ item.1.host }}' ] "
+    tmp_ip: "{{ tmp_ip }} + [ '{{ item.1.ip }}' ] "
   with_subelements:
-    - "{{users_delete}}"
+    - "{{ tmp_delete }}"
     - workstations
     - skip_missing: yes
 
@@ -71,25 +67,10 @@
   include_role:
     name: tcpwrapper
   vars:
-    ip: "{{ item.1.host }}"
     service: 'sshd'
     state: absent
-  with_subelements:
-    - "{{users_delete}}"
-    - workstations
-    - skip_missing: yes
-
-- name: Remove delete user's /etc/hosts.allow entry
-  include_role:
-    name: tcpwrapper
-  vars:
-    ip: "{{ item.1.ip }}"
-    service: 'sshd'
-    state: absent
-  with_subelements:
-    - "{{users_delete}}"
-    - workstations
-    - skip_missing: yes
+    host_list: "{{ tmp_host }} + {{ tmp_ip }}" 
+  when: tmp_host | length > 0 or tmp_ip | length > 0
 
 - name: Remove delete user's /etc/hosts entry
   lineinfile:
@@ -97,6 +78,6 @@
     line: "{{ item.1.ip }}\t{{ item.1.host }}"
     state: absent
   with_subelements:
-    - "{{users_delete}}"
+    - "{{ tmp_delete }}"
     - workstations
     - skip_missing: yes

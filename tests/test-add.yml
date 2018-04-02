@@ -65,7 +65,7 @@
         name: shell-user
       vars:
         set_uid: false
-        set_tcpwrapper: false
+        set_tcpwrapper: true
         override_existing_user: true # force recreate user
         users_list:
           - 'meta/sudo/joe.yml'

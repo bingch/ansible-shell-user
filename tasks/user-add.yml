@@ -8,8 +8,6 @@
     tmp_all_users: []
     tmp_users_list: "{{ users_list }}"
     tmp_set_uid: "{{ set_uid }}"
-    tmp_override: "{{ override_existing_user }}" 
-    tmp_set_tcpwrapper: "{{ set_tcpwrapper }}" 
 
 - name: get current user list
   block:
@@ -29,7 +27,7 @@
     - name: set back tmp_users_list
       set_fact: 
         tmp_users_list: "{{ new_users_list }}"
-  when: not tmp_override
+  when: not override_existing_user
 
 - name: load user's yml
   include_vars:
@@ -141,7 +139,7 @@
   when: item.sudo_user_custom is defined and item.sudo_user_custom
   with_items: "{{ tmp_all_users }}"
 
-- name: Add IP to /etc/hosts
+- name: Setup /etc/hosts
   lineinfile:
     dest: /etc/hosts
     line: "{{ item.1.ip }}\t{{ item.1.host }}"
@@ -150,14 +148,24 @@
     - workstations
     - skip_missing: true
 
-- name: Add IP to hosts.allow sshd service
-  include_role:
-    name: tcpwrapper
-  vars:
-    ip: "{{ item.1.host }}"
-    service: 'sshd'
-  with_subelements:
-    - "{{ tmp_all_users }}"
-    - workstations
-    - skip_missing: true
-  when: tmp_set_tcpwrapper
+- name: Set up /etc/hosts.allow
+  block:
+    - name: Init host list
+      set_fact:
+        tmp_host: []
+    - name: Fill host/ip list
+      set_fact:
+        tmp_host: "{{ tmp_host }} + [ '{{ item.1.host }}' ] "
+      with_subelements:
+        - "{{ tmp_all_users }}"
+        - workstations
+        - skip_missing: yes
+    - name: Add user's /etc/hosts.allow entry
+      include_role:
+        name: tcpwrapper
+      vars:
+        service: 'sshd'
+        state: present
+        host_list: "{{ tmp_host }}"
+      when: tmp_host | length > 0
+  when: set_tcpwrapper 
