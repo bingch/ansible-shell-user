@@ -63,7 +63,7 @@
     group: "{{ item.group | default(omit) }}"
     # empty string removes user from all secondary groups
     groups: "{{ item.usergroups | join(',') if item.usergroups is defined
-                 else '' }}"
+                 else omit }}"
     shell: "{{ item.shell if item.shell is defined else default_shell }}"
     password: "{{ item.password if item.password is defined else 
               lookup('file', item.password_file) if item.password_file is 
@@ -85,14 +85,14 @@
   with_items: "{{ tmp_all_users }}"
   register: tmp_homes
 
-- name: Change home back
+- name: Change home ownership
   file:
     path: "{{ item.item.home | default('/home/' + item.item.username) }}"
-    owner: "{{ item.item.username }}"
+    owner: '{{ item.item.uid if item.item.uid is defined and set_uid else item.item.username }}'
     group: "{{ item.item.group | default(item.item.username if not 
      item.item.username | regex_search('^[1-9]') else default_user_group) }}"
     mode: '0700'
-  when: item.stat.uid is defined and item.stat.uid == 0
+  when: item.stat.exists and (item.stat.mode == '0000' or item.stat.uid == 0)
   with_items: "{{ tmp_homes.results }}"
 
 - name: SSH keys from files
