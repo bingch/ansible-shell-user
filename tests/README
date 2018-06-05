@@ -1,1 +1,1 @@
-This role utilizes tcpwrapper role (https://github.com/bingch/ansible-tcpwrapper), to run tcpwrapper properly, you need to put ansible augeas module (https://github.com/bingch/ansible-augeas) in your ansible module search path like ~/.ansible/plugins/modules
+This role utilizes tcpwrapper role (https://gitlab.com/bingch/ansible-tcpwrapper), to run tcpwrapper properly, you need to put ansible augeas module (https://gitlab.com/bingch/ansible-augeas) in your ansible module search path like ~/.ansible/plugins/modules
